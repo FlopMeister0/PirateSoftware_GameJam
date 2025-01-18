@@ -1,4 +1,8 @@
 import pygame
+from Tiles import *
+from spritesheet import Spritesheet
+from pytmx.util_pygame import load_pygame
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -28,7 +32,16 @@ class Player(pygame.sprite.Sprite):
 class background(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        
+    
+    def blit_all_tiles(window, tmxdata):
+        for layer in tmxdata:
+            for tile in layer.tiles():
+                # tiles[0] = x grid location
+                # tiles[1] = y grid location
+                # tile[2] = image data for blitting
+                x_pixel = tile[0] * 70   
+                y_pixel = tile[1] * 70 
+                window.blit(tile[2], (x_pixel, y_pixel))    
 
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
@@ -36,13 +49,22 @@ clock = pygame.time.Clock()
 game_active = False
 running = True
 
+# player character:
+# spritesheet = spritesheet.parse_sprite()
+# player_Rect = player_img.get_rect()
+
 """Player Character"""
 player = pygame.sprite.GroupSingle()
 player.add(Player())
+
+"""Loading Level"""
+tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+world_offset = [0,0]
+# player_rect.x, player_rect.y = map.start_x, map.start_y
+
     
 """Game Loop"""
 while True:
-    
     # For when the person closes the screen
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -55,12 +77,13 @@ while True:
                 
             
     if game_active == True:
-        screen.fill("purple")
+        background.blit_all_tiles(screen, tmx_data)
         player.draw(screen)
         player.update()
-    else:
-        screen.fill("Green")
+    # else:
+    #     screen.fill("Green")
 
     
     pygame.display.flip()
     clock.tick(60)
+    # map.draw_map(screen)
