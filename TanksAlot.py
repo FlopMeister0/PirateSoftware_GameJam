@@ -24,25 +24,39 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= 2
         elif keys[pygame.K_d]:
             self.rect.x += 2
+            
+    def collision():
+        object_layer = tmx_data.get_layer_by_name('Objects')
     
     def update(self):
         self.player_input()
         
+    
+class Tile(pygame.sprite.Sprite):
+    def __init__(self,pos,surf,groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(topleft = pos)
+        
 class background(pygame.sprite.Sprite):
-    def __init__(self):
-        scale_factor = 2
+    def __init__(self, tmx_data):
+        super().__init__()
+        """Loading Level"""
+        self.tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+        self.Background = pygame.sprite.Group()
+        
+    def loading(self):
+        
+        for layer in self.tmx_data.layers:
+            if hasattr(layer,"data"): # nsure this is a tile layer. Since ile layers have "data"
+                for x, y, surf in layer.tiles():
+                    pos = (x * 16, y * 16)
+                    Tile(pos = pos, surf = surf, groups = self.Background)
+                    #scaled_surf = pygame.transform.scale_by(surf, scale_factor)
+    
+    def draw(self, window):
+        self.Background.draw(window)
 
-    def blit_all_tiles(window, tmxdata):
-        scale_factor = 2
-        for layer in tmxdata:
-            for x, y, surf in layer.tiles():
-                # tiles[0] = x grid location
-                # tiles[1] = y grid location
-                # tile[2] = image data for blitting
-                #scaled_surf = pygame.transform.scale_by(surf, scale_factor)
-                x_pixel = x * 16
-                y_pixel = y * 16
-                window.blit(surf, (x_pixel, y_pixel))  
             
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
@@ -50,13 +64,13 @@ clock = pygame.time.Clock()
 game_active = False
 running = True
 
+tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+Background = background(tmx_data)
+Background.loading()
+
 # player character:
 # spritesheet = spritesheet.parse_sprite()
 # player_Rect = player_img.get_rect()
-
-"""Loading Level"""
-tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
-# player_rect.x, player_rect.y = map.start_x, map.start_y
 
 """Player Character"""
 player = pygame.sprite.GroupSingle()
@@ -77,7 +91,7 @@ while True:
                 
             
     if game_active == True:
-        background.blit_all_tiles(screen, tmx_data)
+        Background.draw(screen)
         player.draw(screen)
         player.update()
     else:
