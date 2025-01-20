@@ -5,7 +5,7 @@ from pytmx.util_pygame import load_pygame
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        scale_factor = 2
+        scale_factor = 1
         
         # player position
         self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134.png').convert_alpha(), scale_factor)
@@ -20,12 +20,15 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= 2
         elif keys[pygame.K_s]:
             self.rect.y += 2
+            self.image = pygame.image.load('graphics/Tiles/tile_0134-down.png').convert_alpha()
         elif keys[pygame.K_a]:
             self.rect.x -= 2
+            self.image = pygame.image.load('graphics/Tiles/tile_0134.png').convert_alpha()
         elif keys[pygame.K_d]:
             self.rect.x += 2
+        
             
-    def collision():
+    def collision(self):
         object_layer = tmx_data.get_layer_by_name('Objects')
     
     def update(self):
@@ -51,7 +54,13 @@ class background(pygame.sprite.Sprite):
                 for x, y, surf in layer.tiles():
                     pos = (x * 16, y * 16)
                     Tile(pos = pos, surf = surf, groups = self.Background)
-    
+        
+        for obj in self.tmx_data.objects:
+            pos = (obj.x, obj.y) # grabbing the position of the object
+            Tile(pos=pos, surf=obj.image, groups=self.Background) # ensure each object has a name
+            
+        
+            
     def draw(self, window):
         self.Background.draw(window)
 
