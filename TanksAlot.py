@@ -14,6 +14,7 @@ class Gameobject(pygame.sprite.Sprite):
         self.image = surf
         self.rect = self.image.get_rect(topleft=pos)
         self.type = obj_type
+        
 class background(pygame.sprite.Sprite):
     def __init__(self, tmx_data):
         super().__init__()
@@ -39,29 +40,27 @@ class background(pygame.sprite.Sprite):
         self.objects.draw(window)
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self,x,y,direction,speed):
+    def __init__(self,x,y,direction,speed, image):
         super().__init__()
-        
         # Bullet
-        self.image = pygame.image.load('graphics/Tiles/tile_0191.png').convert_alpha()
+        self.image = pygame.image.load(image).convert_alpha()
         # Position
         self.rect = self.image.get_rect(center = (x,y))
-        self.direction = direction # direction to move in (1 for right, -1 for left)
+        self.direction = pygame.math.Vector2(direction) # direction to move in (1 for right, -1 for left)
         self.speed = speed
     
     def update(self):
         # move the bullet in a direction
-        self.rect.x += self.direction * self.speed
+        self.rect.x += self.direction.x * self.speed
+        self.rect.y += self.direction.y * self.speed
         if self.rect.x < 0 or self.rect.x > 1280:
             self.kill() # kills if it leaves the screen
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.scale_factor = 1
-        
         # player position
-        self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha(), self.scale_factor)
+        self.image = pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha()
         self.x = 150
         self.y = 400
         self.rect = self.image.get_rect(midbottom = (self.x,self.y))
@@ -69,6 +68,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 2
         self.movement = pygame.math.Vector2(0,0) # initilize movement
         self.bullets = pygame.sprite.Group() # Group of bullets
+        self.direction = "right"
     
     def player_input(self):
         #reset movement vector
@@ -80,21 +80,32 @@ class Player(pygame.sprite.Sprite):
         """Movement"""
         if keys[pygame.K_w]:
             self.movement.y = -self.speed
-            self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-up.png').convert_alpha(), self.scale_factor)
+            self.image = pygame.image.load('graphics/Tiles/tile_0134-up.png').convert_alpha()
+            self.direction = "up"
         elif keys[pygame.K_s]:
             self.movement.y = self.speed
-            self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-down.png').convert_alpha(), self.scale_factor)
+            self.image = pygame.image.load('graphics/Tiles/tile_0134-down.png').convert_alpha()
+            self.direction = "down"
         elif keys[pygame.K_a]:
             self.movement.x = -self.speed
-            self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-left.png').convert_alpha(), self.scale_factor)
+            self.image = pygame.image.load('graphics/Tiles/tile_0134-left.png').convert_alpha()
+            self.direction = "left"
         elif keys[pygame.K_d]:
             self.movement.x = self.speed
-            self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha(), self.scale_factor)
-        elif keys[pygame.K_SPACE]:
-            bullet = Bullet(self.rect.centerx, self.rect.top, direction=1, speed=5)
-            self.bullets.add(bullet)
-            
+            self.image = pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha()
+            self.direction = "right"
         
+    def shooting(self):
+        if self.direction == "up":
+            bullet = Bullet(self.rect.centerx, self.rect.top, direction=(0,-1), speed=4, image='graphics/Tiles/tile_0191-up.png')
+        elif self.direction == "down":
+            bullet = Bullet(self.rect.centerx, self.rect.bottom, direction=(0,1), speed=4, image='graphics/Tiles/tile_0191-down.png')
+        elif self.direction == "left":
+            bullet = Bullet(self.rect.left, self.rect.centery, direction=(-1,0), speed=4, image='graphics/Tiles/tile_0191-left.png')
+        elif self.direction == "right":
+            bullet = Bullet(self.rect.right, self.rect.centery, direction=(1,0), speed=4, image='graphics/Tiles/tile_0191-right.png')
+        self.bullets.add(bullet)
+            
     def collision(self, background_obj):
         collided_obj = pygame.sprite.spritecollide(self, background_obj, False)
         if collided_obj:
@@ -157,6 +168,8 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 game_active = True
+            elif event.key == pygame.K_SPACE:
+                player.shooting()
         
         elif event.type == timer:
             if game_active == True:
