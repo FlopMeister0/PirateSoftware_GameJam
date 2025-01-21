@@ -7,6 +7,13 @@ class Tile(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = surf
         self.rect = self.image.get_rect(topleft=pos)
+        
+class Gameobject(pygame.sprite.Sprite):
+    def __init__(self,pos,surf,groups,obj_type):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(topleft=pos)
+        self.type = obj_type
 class background(pygame.sprite.Sprite):
     def __init__(self, tmx_data):
         super().__init__()
@@ -24,7 +31,8 @@ class background(pygame.sprite.Sprite):
         
         for obj in self.tmx_data.objects:
             pos = (obj.x, obj.y) # grabbing the position of the object
-            Tile(pos=pos, surf=obj.image, groups=self.objects) # ensure each object has a name
+            obj_type = obj.name if hasattr(obj,"name") else "Unknown" # if defined assign the object
+            Gameobject(pos=pos, surf=obj.image, groups=self.objects, obj_type = obj_type) # ensure each object has a name
         
     def draw(self, window):
         self.tiles.draw(window)
@@ -33,39 +41,57 @@ class background(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.scale_factor = 1.5
+        self.scale_factor = 1
         
         # player position
         self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha(), self.scale_factor)
         self.x = 150
         self.y = 400
         self.rect = self.image.get_rect(midbottom = (self.x,self.y))
+        self.previous_pos = self.rect.topleft
+        self.speed = 2
+        self.movement = pygame.math.Vector2(0,0) # initilize
     
     def player_input(self):
+        #reset movement vector
+        self.movement.x = 0
+        self.movement.y = 0
+        
         keys = pygame.key.get_pressed()
+        
         """Movement"""
         if keys[pygame.K_w]:
-            self.rect.y -= 2
+            self.movement.y = -self.speed
             self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-up.png').convert_alpha(), self.scale_factor)
         elif keys[pygame.K_s]:
-            self.rect.y += 2
+            self.movement.y = self.speed
             self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-down.png').convert_alpha(), self.scale_factor)
         elif keys[pygame.K_a]:
-            self.rect.x -= 2
+            self.movement.x = -self.speed
             self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-left.png').convert_alpha(), self.scale_factor)
         elif keys[pygame.K_d]:
-            self.rect.x += 2
+            self.movement.x = self.speed
             self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha(), self.scale_factor)
         
     def collision(self, background_obj):
         collided_obj = pygame.sprite.spritecollide(self, background_obj, False)
         if collided_obj:
-            print("Colliison")
-            for obj in collided_obj:
-                print(f"Collided with tile at {obj.rect.topleft}")
-    
+                for obj in collided_obj:
+                    if obj.type != "Water":
+                     background_obj.remove(obj)
+                    elif obj.type == "Water":
+                        self.rect.topleft = self.previous_pos
+                        self.movement.x = 0
+                        self.movement.y = 0
+                        
     def update(self, background_obj):
+        self.previous_pos = self.rect.topleft
+        
         self.player_input()
+        # apply the movement vector to the player's postion
+        self.rect.x += self.movement.x
+        self.rect.y += self.movement.y
+        
         self.collision(background_obj)
 
             
@@ -83,6 +109,13 @@ Background.loading()
 player = Player()
 player_group = pygame.sprite.GroupSingle(player)
 
+"""Countdown"""
+font = pygame.font.SysFont(None, 100)
+counter = 10
+text = font.render(str(counter), True, (0, 128, 0))
+
+timer = pygame.USEREVENT+1
+pygame.time.set_timer(timer, 1000) # in milliseconds
     
 """Game Loop"""
 while True:
@@ -91,13 +124,21 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        
-        if event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 game_active = True
-                
+        
+        elif event.type == timer:
+            if game_active == True:
+                counter -= 1
+                text = font.render(str(counter), True, (0, 128, 0))
+                print(counter)
+                if counter == 0:
+                    pygame.time.set_timer(timer, 0)
+                    game_active = False
             
-    if game_active == True:
+                
+    if game_active == True: 
         Background.draw(screen)
         player_group.draw(screen)
         player_group.update(Background.objects)
