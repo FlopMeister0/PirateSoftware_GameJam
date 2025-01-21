@@ -37,7 +37,24 @@ class background(pygame.sprite.Sprite):
     def draw(self, window):
         self.tiles.draw(window)
         self.objects.draw(window)
-            
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self,x,y,direction,speed):
+        super().__init__()
+        
+        # Bullet
+        self.image = pygame.image.load('graphics/Tiles/tile_0191.png').convert_alpha()
+        # Position
+        self.rect = self.image.get_rect(center = (x,y))
+        self.direction = direction # direction to move in (1 for right, -1 for left)
+        self.speed = speed
+    
+    def update(self):
+        # move the bullet in a direction
+        self.rect.x += self.direction * self.speed
+        if self.rect.x < 0 or self.rect.x > 1280:
+            self.kill() # kills if it leaves the screen
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -50,7 +67,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom = (self.x,self.y))
         self.previous_pos = self.rect.topleft
         self.speed = 2
-        self.movement = pygame.math.Vector2(0,0) # initilize
+        self.movement = pygame.math.Vector2(0,0) # initilize movement
+        self.bullets = pygame.sprite.Group() # Group of bullets
     
     def player_input(self):
         #reset movement vector
@@ -72,6 +90,10 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_d]:
             self.movement.x = self.speed
             self.image = pygame.transform.scale_by(pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha(), self.scale_factor)
+        elif keys[pygame.K_SPACE]:
+            bullet = Bullet(self.rect.centerx, self.rect.top, direction=1, speed=5)
+            self.bullets.add(bullet)
+            
         
     def collision(self, background_obj):
         collided_obj = pygame.sprite.spritecollide(self, background_obj, False)
@@ -79,10 +101,16 @@ class Player(pygame.sprite.Sprite):
                 for obj in collided_obj:
                     if obj.type != "Water":
                      background_obj.remove(obj)
+                     self.speed += 0.1 # increase speed of tank
                     elif obj.type == "Water":
                         self.rect.topleft = self.previous_pos
                         self.movement.x = 0
                         self.movement.y = 0
+                
+        if self.rect.x < 0 or self.rect.x > 1280 or self.rect.y < 0 or self.rect.y > 720:
+            self.rect.topleft = self.previous_pos
+            self.movement.x = 0
+            self.movement.y = 0
                         
     def update(self, background_obj):
         self.previous_pos = self.rect.topleft
@@ -91,8 +119,10 @@ class Player(pygame.sprite.Sprite):
         # apply the movement vector to the player's postion
         self.rect.x += self.movement.x
         self.rect.y += self.movement.y
-        
+        # Update the collision with the object background
         self.collision(background_obj)
+        # Update the bullets
+        self.bullets.update()
 
             
 pygame.init()
@@ -142,6 +172,8 @@ while True:
         Background.draw(screen)
         player_group.draw(screen)
         player_group.update(Background.objects)
+        player.bullets.draw(screen)
+        player.bullets.update()
     else:
         screen.fill("Green")
 
