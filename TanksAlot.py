@@ -1,6 +1,54 @@
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
+import time
+
+class StartButton(pygame.sprite.Sprite):
+    def __init__(self,pos, action):
+        super().__init__()
+        self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
+        self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
+        self.start_frames = [self.normal_start, self.pressed_start]
+        self.start_index = 0
+        
+        self.image = self.start_frames[self.start_index] # default
+        self.rect = self.image.get_rect(topleft=pos)
+        self.action = action # Action trigger
+    
+    def animation(self):
+        self.start_index += 1
+        if self.start_index >= len(self.start_frames): 
+            self.image = 0
+            self.start_index = 0
+    
+    def update(self,event):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            if pygame.mouse.get_pressed()[0]:
+                
+                self.start_index += 1
+                if self.start_index >= len(self.start_frames):
+                    self.image = self.start_frames[self.start_index]
+                self.animation()
+                pygame.time.wait(300)
+                if self.action and not game_active:
+                    self.action() # trigger when clicked
+            else:
+                self.image = self.normal_start # when not presed
+        else:
+            self.image = self.normal_start # when it mouse is hovering
+    
+    def draw(self, screen):
+        """Draw the button on the screen"""
+        screen.blit(self.image,self.rect)
+    
+    def start_game():
+        global game_active, victory, counter
+        game_active = True
+        victory = None
+        counter = 10
+        pygame.time.set_timer(timer,1000)
+        pygame.time.wait(300) # delay for the button to be pressed
+        background.reset_game()
 
 class Text():
     def title():
@@ -15,13 +63,10 @@ class Text():
         screen.blit(scaled_title,(420,250))
     
     def instructions():
-        instruction_text = Font_countdown.render('Press Y to start, WASD to Move', True, ("Green"))
-        screen.blit(instruction_text,(200,350))
-        instruction_text = Font_countdown.render('Space to Shoot!', True, ("Green"))
-        screen.blit(instruction_text,(400,400))
-    
-    
-        
+        instruction_text = Font_countdown.render('Press WASD to Move & Space to Shoot!', True, ("Green"))
+        screen.blit(instruction_text,(120,350))
+        # instruction_text = Font_countdown.render('Space to Shoot!', True, ("Green"))
+        # screen.blit(instruction_text,(400,400))
         
     def countdown():
         # outline
@@ -35,7 +80,6 @@ class Text():
         Countdown_text = Font_countdown.render(f'{counter}', True, ("turquoise"))
         screen.blit(Countdown_text,(10,0))
     
-        
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
         super().__init__(groups)
@@ -207,6 +251,12 @@ running = True
 victory = None
 restart = None
 
+# """Buttons"""
+# normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
+# pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
+start_button = StartButton(pos=(400,400), action=StartButton.start_game)
+button_group = pygame.sprite.Group(start_button)
+
 """Gray Overlay"""
 gray_overlay = pygame.Surface((1280, 720))
 gray_overlay.set_alpha(128)
@@ -252,13 +302,7 @@ while True:
             exit()
             
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_y:
-                game_active = True
-                victory = None
-                counter = 10
-                pygame.time.set_timer(timer, 1000)
-                background.reset_game()
-            elif event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE:
                 player.shooting()
         
         elif event.type == timer:
@@ -269,6 +313,8 @@ while True:
                     pygame.time.set_timer(timer, 0)
                     victory = False
                     game_active = False
+        
+        button_group.update(event) # Update button state
             
                 
     if game_active == True: 
@@ -277,18 +323,25 @@ while True:
         player_group.update(Background.objects)
         player.bullets.draw(screen)
         Text.countdown()
+        
     else:
         Background.draw(screen)
         screen.blit(gray_overlay,(0,0))
+        button_group.draw(screen)
         Text.instructions()
         Text.title()
+        
         if victory == True:
             screen.blit(yellow_overlay,(0,0))
+            button_group.draw(screen)
             Text.title()
+            
         elif victory == False: 
             screen.blit(red_overlay,(0,0))
+            button_group.draw(screen)
             Text.instructions()
             Text.title()
+            
         elif restart == True:
             victory = None
             game_active = True
