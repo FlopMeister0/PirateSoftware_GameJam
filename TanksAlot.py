@@ -3,12 +3,30 @@ import pytmx
 from pytmx.util_pygame import load_pygame
 
 class Text():
+    def title():
+        outline_color = "Black"
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_title = Font_countdown.render('TanksALOT', True, outline_color)
+            scaled_by = pygame.transform.scale_by(outline_title, 2)
+            screen.blit(scaled_by, (400 + dx, 200 + dy))
+            
+        title_text = Font_countdown.render('TanksALOT', True, ("Green"))
+        scaled_title = pygame.transform.scale_by(title_text, 2)
+        screen.blit(scaled_title,(400,200))
+        
     def countdown():
-        Countdown_text = font.render(f'{counter}', True, ("green"))
-        background_text = pygame.Surface(Countdown_text.get_size())
-        background_text.fill((64,64,64))
-        background_text.blit(Countdown_text,(0,0))
-        screen.blit(background_text,(500,0))
+        # outline
+        outline_color = "black"
+        # dx and dy are to offset the outline from the text, such as (-2,0) shifts 2 pixels to the left. whilst (-2,-2) handle diagonal
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_text = Font_countdown.render(f'{counter}', True, outline_color)
+            screen.blit(outline_text, (10 + dx, 0 + dy))
+        
+        # countdown
+        Countdown_text = Font_countdown.render(f'{counter}', True, ("turquoise"))
+        screen.blit(Countdown_text,(10,0))
+    
+        
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
         super().__init__(groups)
@@ -165,7 +183,28 @@ screen = pygame.display.set_mode((1280,720))
 clock = pygame.time.Clock()
 game_active = False
 running = True
+victory = None
+restart = None
 
+"""Gray Overlay"""
+gray_overlay = pygame.Surface((1280, 720))
+gray_overlay.set_alpha(128)
+gray_overlay.fill((64,64,64))
+
+"""Red Overlay"""
+red_overlay = pygame.Surface((1280, 720))
+red_overlay.set_alpha(128)
+red_overlay.fill((255,0,0))
+
+"""Yellow Overlay"""
+yellow_overlay = pygame.Surface((1280, 720))
+yellow_overlay.set_alpha(128)
+yellow_overlay.fill((255,255,0))
+
+"""Fonts"""
+Font_countdown = pygame.font.Font("graphics/Fonts/VCR_OSD_MONO.ttf", 50)
+
+"""Background"""
 tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
 Background = background(tmx_data)
 Background.loading()
@@ -203,6 +242,7 @@ while True:
                 print(counter)
                 if counter == 0:
                     pygame.time.set_timer(timer, 0)
+                    victory = False
                     game_active = False
             
                 
@@ -212,9 +252,26 @@ while True:
         player_group.update(Background.objects)
         player.bullets.draw(screen)
         Text.countdown()
-
+        if victory == True:
+            screen.blit(yellow_overlay,(0,0))
+            Text.title()
+        elif victory == False: 
+            screen.blit(red_overlay,(0,0))
+            Text.title()
     else:
-        screen.fill("Green")
+        Background.draw(screen)
+        screen.blit(gray_overlay,(0,0))
+        Text.title()
+        if victory == True:
+            screen.blit(yellow_overlay,(0,0))
+            Text.title()
+        elif victory == False: 
+            screen.blit(red_overlay,(0,0))
+            Text.title()
+        elif restart == True:
+            victory = None
+            game_active = True
+            restart = False
 
     
     pygame.display.flip()
