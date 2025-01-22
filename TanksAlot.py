@@ -6,6 +6,7 @@ import time
 class StartButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
         super().__init__()
+        self.animating = False
         self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
         self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
         self.start_frames = [self.normal_start, self.pressed_start]
@@ -16,26 +17,34 @@ class StartButton(pygame.sprite.Sprite):
         self.action = action # Action trigger
     
     def animation(self):
-        self.start_index += 1
-        if self.start_index >= len(self.start_frames): 
-            self.image = 0
-            self.start_index = 0
+        self.animating = True
     
-    def update(self,event):
+    def update(self):      
+        # self.start_index += 0.1
+        
+        # if self.start_index >= len(self.start_frames):
+        #     self.start_index = 0
+        #     self.animating = False
+        # self.image = self.start_frames[int(self.start_index)]
+        # self.animation()
+        # print(self.start_index)
+        
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             if pygame.mouse.get_pressed()[0]:
-                
-                self.start_index += 1
-                if self.start_index >= len(self.start_frames):
-                    self.image = self.start_frames[self.start_index]
-                self.animation()
-                pygame.time.wait(300)
-                if self.action and not game_active:
+                if self.action:
+                    self.start_index += 1
+                    
+                    if self.start_index >= len(self.start_frames):
+                        self.start_index = 0
+                        self.animating = False
+                    self.image = self.start_frames[int(self.start_index)]
+                    self.animation()
+                    print(self.start_index)
+                    
+                    pygame.time.wait(300)
+                    
                     self.action() # trigger when clicked
-            else:
-                self.image = self.normal_start # when not presed
-        else:
-            self.image = self.normal_start # when it mouse is hovering
+
     
     def draw(self, screen):
         """Draw the button on the screen"""
@@ -47,7 +56,6 @@ class StartButton(pygame.sprite.Sprite):
         victory = None
         counter = 10
         pygame.time.set_timer(timer,1000)
-        pygame.time.wait(300) # delay for the button to be pressed
         background.reset_game()
 
 class Text():
@@ -302,7 +310,9 @@ while True:
             exit()
             
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_s:
+                start_button.animation()
+            elif event.key == pygame.K_SPACE:
                 player.shooting()
         
         elif event.type == timer:
@@ -313,8 +323,6 @@ while True:
                     pygame.time.set_timer(timer, 0)
                     victory = False
                     game_active = False
-        
-        button_group.update(event) # Update button state
             
                 
     if game_active == True: 
@@ -327,6 +335,7 @@ while True:
     else:
         Background.draw(screen)
         screen.blit(gray_overlay,(0,0))
+        button_group.update()
         button_group.draw(screen)
         Text.instructions()
         Text.title()
