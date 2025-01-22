@@ -316,13 +316,6 @@ while True:
         Text.countdown()
         
     else:
-        Background.draw(screen)
-        screen.blit(gray_overlay,(0,0))
-        button_group.update()
-        button_group.draw(screen)
-        Text.instructions()
-        Text.title()
-        
         if victory == True:
             screen.blit(yellow_overlay,(0,0))
             button_group.draw(screen)
@@ -335,6 +328,13 @@ while True:
             victory = None
             game_active = True
             restart = False
+        
+        Background.draw(screen)
+        screen.blit(gray_overlay,(0,0))
+        button_group.update()
+        button_group.draw(screen)
+        Text.instructions()
+        Text.title()
 
     
     pygame.display.flip()
