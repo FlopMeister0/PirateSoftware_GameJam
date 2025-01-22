@@ -1,7 +1,6 @@
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
-import time
 
 class StartButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
@@ -20,15 +19,6 @@ class StartButton(pygame.sprite.Sprite):
         self.animating = True
     
     def update(self):      
-        # self.start_index += 0.1
-        
-        # if self.start_index >= len(self.start_frames):
-        #     self.start_index = 0
-        #     self.animating = False
-        # self.image = self.start_frames[int(self.start_index)]
-        # self.animation()
-        # print(self.start_index)
-        
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             if pygame.mouse.get_pressed()[0]:
                 if self.action:
@@ -39,9 +29,6 @@ class StartButton(pygame.sprite.Sprite):
                         self.animating = False
                     self.image = self.start_frames[int(self.start_index)]
                     self.animation()
-                    print(self.start_index)
-                    
-                    pygame.time.wait(300)
                     
                     self.action() # trigger when clicked
 
@@ -252,17 +239,15 @@ class Player(pygame.sprite.Sprite):
 
             
 pygame.init()
-screen = pygame.display.set_mode((1280,720))
+screen = pygame.display.set_mode((1280,700))
 clock = pygame.time.Clock()
 game_active = False
 running = True
 victory = None
 restart = None
 
-# """Buttons"""
-# normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
-# pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
-start_button = StartButton(pos=(400,400), action=StartButton.start_game)
+"""Buttons"""
+start_button = StartButton(pos=(400,450), action=StartButton.start_game)
 button_group = pygame.sprite.Group(start_button)
 
 """Gray Overlay"""
@@ -310,9 +295,7 @@ while True:
             exit()
             
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_s:
-                start_button.animation()
-            elif event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE:
                 player.shooting()
         
         elif event.type == timer:
@@ -343,13 +326,10 @@ while True:
         if victory == True:
             screen.blit(yellow_overlay,(0,0))
             button_group.draw(screen)
-            Text.title()
-            
+
         elif victory == False: 
             screen.blit(red_overlay,(0,0))
             button_group.draw(screen)
-            Text.instructions()
-            Text.title()
             
         elif restart == True:
             victory = None
