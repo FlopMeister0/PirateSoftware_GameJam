@@ -7,12 +7,21 @@ class Text():
         outline_color = "Black"
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
             outline_title = Font_countdown.render('TanksALOT', True, outline_color)
-            scaled_by = pygame.transform.scale_by(outline_title, 2)
-            screen.blit(scaled_by, (400 + dx, 200 + dy))
+            scaled_by = pygame.transform.scale_by(outline_title, 1.5)
+            screen.blit(scaled_by, (420 + dx, 250 + dy))
             
         title_text = Font_countdown.render('TanksALOT', True, ("Green"))
-        scaled_title = pygame.transform.scale_by(title_text, 2)
-        screen.blit(scaled_title,(400,200))
+        scaled_title = pygame.transform.scale_by(title_text, 1.5)
+        screen.blit(scaled_title,(420,250))
+    
+    def instructions():
+        instruction_text = Font_countdown.render('Press Y to start, WASD to Move', True, ("Green"))
+        screen.blit(instruction_text,(200,350))
+        instruction_text = Font_countdown.render('Space to Shoot!', True, ("Green"))
+        screen.blit(instruction_text,(400,400))
+    
+    
+        
         
     def countdown():
         # outline
@@ -49,6 +58,9 @@ class background(pygame.sprite.Sprite):
         self.objects = pygame.sprite.Group()
         
     def loading(self):
+        self.tiles.empty()
+        self.objects.empty()
+        
         for layer in self.tmx_data.layers:
             if hasattr(layer,"data"): # nsure this is a tile layer. Since ile layers have "data"
                 for x, y, surf in layer.tiles():
@@ -63,6 +75,15 @@ class background(pygame.sprite.Sprite):
     def draw(self, window):
         self.tiles.draw(window)
         self.objects.draw(window)
+    
+    def reset_game():
+        global player, player_group, Background
+        player = Player()
+        player_group = pygame.sprite.GroupSingle(player)
+        
+        tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+        Background = background(tmx_data)
+        Background.loading()
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self,x,y,direction,speed, image):
@@ -231,8 +252,12 @@ while True:
             exit()
             
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
+            if event.key == pygame.K_y:
                 game_active = True
+                victory = None
+                counter = 10
+                pygame.time.set_timer(timer, 1000)
+                background.reset_game()
             elif event.key == pygame.K_SPACE:
                 player.shooting()
         
@@ -252,21 +277,17 @@ while True:
         player_group.update(Background.objects)
         player.bullets.draw(screen)
         Text.countdown()
-        if victory == True:
-            screen.blit(yellow_overlay,(0,0))
-            Text.title()
-        elif victory == False: 
-            screen.blit(red_overlay,(0,0))
-            Text.title()
     else:
         Background.draw(screen)
         screen.blit(gray_overlay,(0,0))
+        Text.instructions()
         Text.title()
         if victory == True:
             screen.blit(yellow_overlay,(0,0))
             Text.title()
         elif victory == False: 
             screen.blit(red_overlay,(0,0))
+            Text.instructions()
             Text.title()
         elif restart == True:
             victory = None
