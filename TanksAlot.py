@@ -2,6 +2,13 @@ import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
 
+class Text():
+    def countdown():
+        Countdown_text = font.render(f'{counter}', True, ("green"))
+        background_text = pygame.Surface(Countdown_text.get_size())
+        background_text.fill((64,64,64))
+        background_text.blit(Countdown_text,(0,0))
+        screen.blit(background_text,(500,0))
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
         super().__init__(groups)
@@ -48,13 +55,23 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x,y))
         self.direction = pygame.math.Vector2(direction) # direction to move in (1 for right, -1 for left)
         self.speed = speed
-    
-    def update(self):
+
+    def collision(self, background_obj):
+        collided_obj = pygame.sprite.spritecollide(self, background_obj, False)
+        if collided_obj:
+                for obj in collided_obj:
+                    if obj.type != "Water":
+                     background_obj.remove(obj)
+                     self.kill()
+                    elif self.rect.x < 0 or self.rect.x > 1280:
+                     self.kill() # kills if it leaves the screen
+        
+    def update(self, background_obj):
         # move the bullet in a direction
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.speed
-        if self.rect.x < 0 or self.rect.x > 1280:
-            self.kill() # kills if it leaves the screen
+        self.collision(background_obj)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -69,6 +86,8 @@ class Player(pygame.sprite.Sprite):
         self.movement = pygame.math.Vector2(0,0) # initilize movement
         self.bullets = pygame.sprite.Group() # Group of bullets
         self.direction = "right"
+        self.shooting_cooldown = 500
+        self.last_shot = pygame.time.get_ticks()
     
     def player_input(self):
         #reset movement vector
@@ -96,15 +115,19 @@ class Player(pygame.sprite.Sprite):
             self.direction = "right"
         
     def shooting(self):
-        if self.direction == "up":
-            bullet = Bullet(self.rect.centerx, self.rect.top, direction=(0,-1), speed=4, image='graphics/Tiles/tile_0191-up.png')
-        elif self.direction == "down":
-            bullet = Bullet(self.rect.centerx, self.rect.bottom, direction=(0,1), speed=4, image='graphics/Tiles/tile_0191-down.png')
-        elif self.direction == "left":
-            bullet = Bullet(self.rect.left, self.rect.centery, direction=(-1,0), speed=4, image='graphics/Tiles/tile_0191-left.png')
-        elif self.direction == "right":
-            bullet = Bullet(self.rect.right, self.rect.centery, direction=(1,0), speed=4, image='graphics/Tiles/tile_0191-right.png')
-        self.bullets.add(bullet)
+        current_time = pygame.time.get_ticks()
+        
+        if current_time - self.last_shot >= self.shooting_cooldown:
+            if self.direction == "up":
+                bullet = Bullet(self.rect.centerx, self.rect.top, direction=(0,-1), speed=4, image='graphics/Tiles/tile_0191-up.png')
+            elif self.direction == "down":
+                bullet = Bullet(self.rect.centerx, self.rect.bottom, direction=(0,1), speed=4, image='graphics/Tiles/tile_0191-down.png')
+            elif self.direction == "left":
+                bullet = Bullet(self.rect.left, self.rect.centery, direction=(-1,0), speed=4, image='graphics/Tiles/tile_0191-left.png')
+            elif self.direction == "right":
+                bullet = Bullet(self.rect.right, self.rect.centery, direction=(1,0), speed=4, image='graphics/Tiles/tile_0191-right.png')
+            self.bullets.add(bullet)
+            self.last_shot = current_time # update to the current time.
             
     def collision(self, background_obj):
         collided_obj = pygame.sprite.spritecollide(self, background_obj, False)
@@ -133,7 +156,8 @@ class Player(pygame.sprite.Sprite):
         # Update the collision with the object background
         self.collision(background_obj)
         # Update the bullets
-        self.bullets.update()
+        for bullet in self.bullets:
+         bullet.update(background_obj)
 
             
 pygame.init()
@@ -162,9 +186,11 @@ pygame.time.set_timer(timer, 1000) # in milliseconds
 while True:
     # For when the person closes the screen
     for event in pygame.event.get():
+        
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+            
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 game_active = True
@@ -174,7 +200,6 @@ while True:
         elif event.type == timer:
             if game_active == True:
                 counter -= 1
-                text = font.render(str(counter), True, (0, 128, 0))
                 print(counter)
                 if counter == 0:
                     pygame.time.set_timer(timer, 0)
@@ -186,7 +211,8 @@ while True:
         player_group.draw(screen)
         player_group.update(Background.objects)
         player.bullets.draw(screen)
-        player.bullets.update()
+        Text.countdown()
+
     else:
         screen.fill("Green")
 
