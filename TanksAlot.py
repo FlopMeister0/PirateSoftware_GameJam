@@ -60,6 +60,50 @@ class Text():
         title_text = Font_countdown.render('TanksALOT', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(420,150))
+        
+    def Win():
+        outline_color = "Black"
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_title = Font_countdown.render('TanksALOT for playing!', True, outline_color)
+            scaled_by = pygame.transform.scale_by(outline_title, 1.5)
+            screen.blit(scaled_by, (160 + dx, 200 + dy))
+            
+        title_text = Font_countdown.render('TanksALOT for playing!', True, ("Green"))
+        scaled_title = pygame.transform.scale_by(title_text, 1.5)
+        screen.blit(scaled_title,(160,200))
+        
+        additional_text1 = Font_countdown.render('This is my first time', True, ("Lime"))
+        screen.blit(additional_text1,(325,350))
+        additional_text2 = Font_countdown.render('working with TileMapping!', True, ("Lime"))
+        screen.blit(additional_text2,(275,400))
+        
+    def Lose():
+        outline_color = "Black"
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_title = Font_countdown.render('Not destructive enough!', True, outline_color)
+            scaled_by = pygame.transform.scale_by(outline_title, 1.5)
+            screen.blit(scaled_by, (420 + dx, 150 + dy))
+            
+        title_text = Font_countdown.render('Not destructive enough!', True, ("Green"))
+        scaled_title = pygame.transform.scale_by(title_text, 1.5)
+        screen.blit(scaled_title,(420,150))
+        
+        additional_text1 = Font_countdown.render('Speed Is key!', True, ("Lime"))
+        screen.blit(additional_text1,(325,350))
+    
+    def Shotyourself():
+        outline_color = "Black"
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_title = Font_countdown.render('You Shot Yourself!', True, outline_color)
+            scaled_by = pygame.transform.scale_by(outline_title, 1.5)
+            screen.blit(scaled_by, (420 + dx, 150 + dy))
+            
+        title_text = Font_countdown.render('You Shot Yourself!', True, ("Green"))
+        scaled_title = pygame.transform.scale_by(title_text, 1.5)
+        screen.blit(scaled_title,(420,150))
+        
+        additional_text1 = Font_countdown.render('"Better luck next time"', True, ("Lime"))
+        screen.blit(additional_text1,(325,350))
     
     def instructions():
         instruction_text = Font_countdown.render('Press WASD to Move & Right-Click to Shoot!', True, ("Lime"))
@@ -241,7 +285,7 @@ class Player(pygame.sprite.Sprite):
                     if obj.type != "Water":
                      background_obj.remove(obj)
                      hit_sound = pygame.mixer.Sound("audio/sound_effects/Powerup.wav")
-                     hit_sound.set_volume(0.05)
+                     hit_sound.set_volume(0.075)
                      hit_sound.play()
                      self.speed += 0.01 # increase speed of tank
                     elif obj.type == "Water":
@@ -252,13 +296,13 @@ class Player(pygame.sprite.Sprite):
         hit_by_bullet = pygame.sprite.spritecollide(self, bullet_group, True) # kills player when set to true
         if hit_by_bullet:
             hit_sound = pygame.mixer.Sound("audio/sound_effects/Hit.wav")
-            hit_sound.set_volume(0.08)
+            hit_sound.set_volume(0.075)
             hit_sound.play()
             global game_active, victory
             victory = False
             game_active = False
                 
-        if self.rect.x < 0 or self.rect.x > 1280 or self.rect.y < 0 or self.rect.y > 720:
+        if self.rect.x < 0 or self.rect.x > 1270 or self.rect.y < 0 or self.rect.y > 685:
             self.rect.topleft = self.previous_pos
             self.movement.x = 0
             self.movement.y = 0
@@ -284,6 +328,7 @@ game_active = False
 running = True
 victory = None
 restart = None
+
 
 """Bullets"""
 bullet_group = pygame.sprite.Group()
@@ -360,8 +405,7 @@ while True:
         bullet_group.draw(screen)
         Text.countdown()
         
-        destructable_count = 0
-        # len([obj for obj in Background.objects if obj.type=="Destructable"])
+        destructable_count = len([obj for obj in Background.objects if obj.type=="Destructable"])
         Text.remaining(destructable_count)
         
     else:
@@ -369,12 +413,19 @@ while True:
         screen.blit(gray_overlay,(0,0))
         button_group.update()
         button_group.draw(screen)
+        Text.Background()
+        Text.instructions()
+        Text.title()
 
         if victory == True:
             screen.blit(green_overlay,(0,0))
             button_group.draw(screen)
+            Text.Background()
+            Text.Win()
 
         elif victory == False: 
+            Text.Background()
+            Text.Lose()
             screen.blit(red_overlay,(0,0))
             button_group.draw(screen)
             
@@ -382,10 +433,6 @@ while True:
             victory = None
             game_active = True
             restart = False
-        
-        Text.Background()
-        Text.instructions()
-        Text.title()
     
     pygame.display.flip()
     clock.tick(60)
