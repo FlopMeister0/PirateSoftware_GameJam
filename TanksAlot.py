@@ -302,10 +302,10 @@ red_overlay = pygame.Surface((1280, 720))
 red_overlay.set_alpha(128)
 red_overlay.fill((255,0,0))
 
-"""Yellow Overlay"""
-yellow_overlay = pygame.Surface((1280, 720))
-yellow_overlay.set_alpha(128)
-yellow_overlay.fill((255,255,0))
+"""Green Overlay"""
+green_overlay = pygame.Surface((1280, 720))
+green_overlay.set_alpha(128)
+green_overlay.fill((0,255,0))
 
 """Fonts"""
 Font_countdown = pygame.font.Font("graphics/Fonts/VCR_OSD_MONO.ttf", 50)
@@ -347,6 +347,10 @@ while True:
                     pygame.time.set_timer(timer, 0)
                     victory = False
                     game_active = False
+                if destructable_count == 0:
+                    victory = True
+                    game_active = False
+                    
             
                 
     if game_active: 
@@ -356,7 +360,8 @@ while True:
         bullet_group.draw(screen)
         Text.countdown()
         
-        destructable_count = len([obj for obj in Background.objects if obj.type=="Destructable"])
+        destructable_count = 0
+        # len([obj for obj in Background.objects if obj.type=="Destructable"])
         Text.remaining(destructable_count)
         
     else:
@@ -366,7 +371,7 @@ while True:
         button_group.draw(screen)
 
         if victory == True:
-            screen.blit(yellow_overlay,(0,0))
+            screen.blit(green_overlay,(0,0))
             button_group.draw(screen)
 
         elif victory == False: 
