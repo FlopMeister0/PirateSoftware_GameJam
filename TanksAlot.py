@@ -41,7 +41,7 @@ class StartButton(pygame.sprite.Sprite):
         global game_active, victory, counter
         game_active = True
         victory = None
-        counter = 10
+        counter = 90
         pygame.time.set_timer(timer,1000)
         background.reset_game()
 
@@ -76,12 +76,24 @@ class Text():
         outline_color = "black"
         # dx and dy are to offset the outline from the text, such as (-2,0) shifts 2 pixels to the left. whilst (-2,-2) handle diagonal
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_text = Font_countdown.render(f'Time: {counter}', True, outline_color)
+            outline_text = Font_countdown.render(f'{counter}', True, outline_color)
             screen.blit(outline_text, (10 + dx, 0 + dy))
         
         # countdown
-        Countdown_text = Font_countdown.render(f'Time: {counter}', True, ("turquoise"))
+        Countdown_text = Font_countdown.render(f'{counter}', True, ("turquoise"))
         screen.blit(Countdown_text,(10,0))
+        
+    def remaining(count):
+        # outline
+        outline_color = "black"
+        # dx and dy are to offset the outline from the text, such as (-2,0) shifts 2 pixels to the left. whilst (-2,-2) handle diagonal
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_text = Font_countdown.render(f'Left: {count}', True, outline_color)
+            screen.blit(outline_text, (10 + dx, 650 + dy))
+        
+        # remaining
+        remaining_text = Font_countdown.render(f'Left: {count}', True, ("turquoise"))
+        screen.blit(remaining_text,(10,650))
     
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
@@ -103,7 +115,7 @@ class background(pygame.sprite.Sprite):
         self.tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
         self.tiles = pygame.sprite.Group()
         self.objects = pygame.sprite.Group()
-        
+    
     def loading(self):
         self.tiles.empty()
         self.objects.empty()
@@ -115,13 +127,13 @@ class background(pygame.sprite.Sprite):
                     Tile(pos = pos, surf = surf, groups = self.tiles)
         
         for obj in self.tmx_data.objects:
-            objects_left = obj
             pos = (obj.x, obj.y) # grabbing the position of the object
             obj_type = obj.name if hasattr(obj,"name") else "Unknown" # if defined assign the object
             Gameobject(pos=pos, surf=obj.image, groups=self.objects, obj_type = obj_type) # ensure each object has a name
             
-        "print(objects_left)
-        
+            """Seperates destructable objects with water"""
+            if obj_type == "Destructable":
+                Gameobject(pos=pos, surf=obj.image, groups=self.objects, obj_type=obj_type)
         
     def draw(self, window):
         self.tiles.draw(window)
@@ -231,7 +243,7 @@ class Player(pygame.sprite.Sprite):
                      hit_sound = pygame.mixer.Sound("audio/sound_effects/Powerup.wav")
                      hit_sound.set_volume(0.05)
                      hit_sound.play()
-                     self.speed += 0.1 # increase speed of tank
+                     self.speed += 0.01 # increase speed of tank
                     elif obj.type == "Water":
                         self.rect.topleft = self.previous_pos
                         self.movement.x = 0
@@ -337,12 +349,15 @@ while True:
                     game_active = False
             
                 
-    if game_active == True: 
+    if game_active: 
         Background.draw(screen)
         player_group.draw(screen)
         player_group.update(Background.objects, bullet_group)
         bullet_group.draw(screen)
         Text.countdown()
+        
+        destructable_count = len([obj for obj in Background.objects if obj.type=="Destructable"])
+        Text.remaining(destructable_count)
         
     else:
         Background.draw(screen)
