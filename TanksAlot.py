@@ -5,34 +5,20 @@ from pytmx.util_pygame import load_pygame
 class StartButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
         super().__init__()
-        self.animating = False
         self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
-        self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
-        self.start_frames = [self.normal_start, self.pressed_start]
-        self.start_index = 0
-        
-        self.image = self.start_frames[self.start_index] # default
+        self.image = self.normal_start # default
         self.rect = self.image.get_rect(topleft=pos)
         self.action = action # Action trigger
     
-    def animation(self):
-        self.animating = True
-    
-    def update(self):      
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            if pygame.mouse.get_pressed()[0]:
-                if self.action:
-                    self.start_index += 1
-                    
-                    if self.start_index >= len(self.start_frames):
-                        self.start_index = 0
-                        self.animating = False
-                    self.image = self.start_frames[int(self.start_index)]
-                    self.animation()
-                    
-                    self.action() # trigger when clicked
+    # Add a timer to see the button go up?
+    def update(self):    
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
+            self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
+            self.image = self.pressed_start
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
+            self.action()
 
-    
     def draw(self, screen):
         """Draw the button on the screen"""
         screen.blit(self.image,self.rect)
@@ -55,11 +41,11 @@ class Text():
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
             outline_title = Font_countdown.render('TanksALOT', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
-            screen.blit(scaled_by, (420 + dx, 150 + dy))
+            screen.blit(scaled_by, (430 + dx, 150 + dy))
             
         title_text = Font_countdown.render('TanksALOT', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
-        screen.blit(scaled_title,(420,150))
+        screen.blit(scaled_title,(430,150))
         
     def Win():
         outline_color = "Black"
@@ -82,38 +68,38 @@ class Text():
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
             outline_title = Font_countdown.render('Not destructive enough!', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
-            screen.blit(scaled_by, (420 + dx, 150 + dy))
+            screen.blit(scaled_by, (140 + dx, 200 + dy))
             
         title_text = Font_countdown.render('Not destructive enough!', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
-        screen.blit(scaled_title,(420,150))
+        screen.blit(scaled_title,(140,200))
         
-        additional_text1 = Font_countdown.render('Speed Is key!', True, ("Lime"))
-        screen.blit(additional_text1,(325,350))
+        additional_text1 = Font_countdown.render('"Speed Is key!"', True, ("Lime"))
+        screen.blit(additional_text1,(405,350))
     
     def Shotyourself():
         outline_color = "Black"
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
             outline_title = Font_countdown.render('You Shot Yourself!', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
-            screen.blit(scaled_by, (420 + dx, 150 + dy))
+            screen.blit(scaled_by, (250 + dx, 200 + dy))
             
         title_text = Font_countdown.render('You Shot Yourself!', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
-        screen.blit(scaled_title,(420,150))
+        screen.blit(scaled_title,(250,200))
         
         additional_text1 = Font_countdown.render('"Better luck next time"', True, ("Lime"))
-        screen.blit(additional_text1,(325,350))
+        screen.blit(additional_text1,(300,350))
     
     def instructions():
-        instruction_text = Font_countdown.render('Press WASD to Move & Right-Click to Shoot!', True, ("Lime"))
-        screen.blit(instruction_text,(30,250))
+        instruction_text1 = Font_countdown.render('WASD to Move, Right-Click to Shoot', True, ("Lime"))
+        screen.blit(instruction_text1,(130,250))
+        instruction_text2 = Font_countdown.render('and R to restart', True, ("Lime"))
+        screen.blit(instruction_text2,(370,300))
         game_text1 = Font_countdown.render('Destroy all objects in the stage', True, ("Lime"))
-        screen.blit(game_text1,(30,375))
-        game_text2 = Font_countdown.render('without getting hit by your own bullet', True, ("Lime"))
-        screen.blit(game_text2,(30,425))
-        game_text3 = Font_countdown.render('or running out of time to win!', True, ("Lime"))
-        screen.blit(game_text3,(30,475))
+        screen.blit(game_text1,(160,375))
+        game_text2 = Font_countdown.render('without running out of time to win!', True, ("Lime"))
+        screen.blit(game_text2,(120,425))
         
     def countdown():
         # outline
@@ -209,7 +195,7 @@ class Bullet(pygame.sprite.Sprite):
                     if obj.type != "Water":
                      background_obj.remove(obj)
                      hit_sound = pygame.mixer.Sound("audio/sound_effects/Hit.wav")
-                     hit_sound.set_volume(0.08)
+                     hit_sound.set_volume(0.05)
                      hit_sound.play()
                      self.kill()
                     elif self.rect.x < 0 or self.rect.x > 1280 or self.rect.y < 0 or self.rect.y > 720:
@@ -274,7 +260,7 @@ class Player(pygame.sprite.Sprite):
             elif self.direction == "left":
                 bullet = Bullet(self.rect.left - bullet_offset, self.rect.centery, direction=(-1,0), speed=4, image='graphics/Tiles/tile_0191-left.png')
             elif self.direction == "right":
-                bullet = Bullet(self.rect.right + bullet_offset, self.rect.centery, direction=(1,0), speed=4, image='graphics/Tiles/tile_0191-right.png')
+                bullet = Bullet(self.rect.right + bullet_offset , self.rect.centery, direction=(1,0), speed=4, image='graphics/Tiles/tile_0191-right.png')
             bullet_group.add(bullet)
             self.last_shot = current_time # update to the current time.
             
@@ -285,7 +271,7 @@ class Player(pygame.sprite.Sprite):
                     if obj.type != "Water":
                      background_obj.remove(obj)
                      hit_sound = pygame.mixer.Sound("audio/sound_effects/Powerup.wav")
-                     hit_sound.set_volume(0.075)
+                     hit_sound.set_volume(0.025)
                      hit_sound.play()
                      self.speed += 0.01 # increase speed of tank
                     elif obj.type == "Water":
@@ -298,8 +284,9 @@ class Player(pygame.sprite.Sprite):
             hit_sound = pygame.mixer.Sound("audio/sound_effects/Hit.wav")
             hit_sound.set_volume(0.075)
             hit_sound.play()
-            global game_active, victory
+            global game_active, victory, shot_by
             victory = False
+            shot_by = True
             game_active = False
                 
         if self.rect.x < 0 or self.rect.x > 1270 or self.rect.y < 0 or self.rect.y > 685:
@@ -327,8 +314,7 @@ clock = pygame.time.Clock()
 game_active = False
 running = True
 victory = None
-restart = None
-
+shot_by = None
 
 """Bullets"""
 bullet_group = pygame.sprite.Group()
@@ -384,6 +370,12 @@ while True:
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             player.shooting()
         
+        # restart button
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                StartButton() " # fix the start button not going back up after restart
+                game_active = False
+        
         elif event.type == timer:
             if game_active == True:
                 counter -= 1
@@ -395,8 +387,6 @@ while True:
                 if destructable_count == 0:
                     victory = True
                     game_active = False
-                    
-            
                 
     if game_active: 
         Background.draw(screen)
@@ -424,15 +414,16 @@ while True:
             Text.Win()
 
         elif victory == False: 
-            Text.Background()
-            Text.Lose()
-            screen.blit(red_overlay,(0,0))
-            button_group.draw(screen)
-            
-        elif restart == True:
-            victory = None
-            game_active = True
-            restart = False
+            if shot_by:
+                screen.blit(red_overlay,(0,0))
+                button_group.draw(screen)
+                Text.Background()
+                Text.Shotyourself()
+            else:
+                screen.blit(red_overlay,(0,0))
+                button_group.draw(screen)
+                Text.Background()
+                Text.Lose()
     
     pygame.display.flip()
     clock.tick(60)
