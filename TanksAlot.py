@@ -6,8 +6,8 @@ from sys import exit
 class StartButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
         super().__init__()
-        self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
-        self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
+        self.normal_start = pygame.image.load('data/graphics/Buttons/Start/Start1.png').convert_alpha()
+        self.pressed_start = pygame.image.load('data/graphics/Buttons/Start/Start4.png').convert_alpha()
         self.image = self.normal_start # default
         self.rect = self.image.get_rect(topleft=pos)
         self.action = action # Action trigger
@@ -40,70 +40,70 @@ class StartButton(pygame.sprite.Sprite):
 
 class Text():
     def Background():
-        menu = pygame.image.load("graphics/Menu/Menu.png")
+        menu = pygame.image.load("data/graphics/Menu/Menu.png")
         screen.blit(menu, (0,140))
     
     def title():
         outline_color = "Black"
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_title = Font_countdown.render('TanksALOT', True, outline_color)
+            outline_title = MainFont.render('TanksALOT', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
             screen.blit(scaled_by, (430 + dx, 150 + dy))
             
-        title_text = Font_countdown.render('TanksALOT', True, ("Green"))
+        title_text = MainFont.render('TanksALOT', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(430,150))
         
     def Win():
         outline_color = "Black"
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_title = Font_countdown.render('TanksALOT for playing!', True, outline_color)
+            outline_title = MainFont.render('TanksALOT for playing!', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
             screen.blit(scaled_by, (160 + dx, 200 + dy))
             
-        title_text = Font_countdown.render('TanksALOT for playing!', True, ("Green"))
+        title_text = MainFont.render('TanksALOT for playing!', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(160,200))
         
-        additional_text1 = Font_countdown.render('Credits are on the Itch.io page & ReadMe!', True, ("Lime"))
+        additional_text1 = MainFont.render('Credits are on the Itch.io page & ReadMe!', True, ("Lime"))
         screen.blit(additional_text1,(50,350))
         
     def Lose():
         outline_color = "Black"
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_title = Font_countdown.render('Not destructive enough!', True, outline_color)
+            outline_title = MainFont.render('Not destructive enough!', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
             screen.blit(scaled_by, (140 + dx, 200 + dy))
             
-        title_text = Font_countdown.render('Not destructive enough!', True, ("Green"))
+        title_text = MainFont.render('Not destructive enough!', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(140,200))
         
-        additional_text1 = Font_countdown.render('"Speed Is key!"', True, ("Lime"))
+        additional_text1 = MainFont.render('"Speed Is key!"', True, ("Lime"))
         screen.blit(additional_text1,(405,350))
     
     def Shotyourself():
         outline_color = "Black"
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_title = Font_countdown.render('You Shot Yourself!', True, outline_color)
+            outline_title = MainFont.render('You Shot Yourself!', True, outline_color)
             scaled_by = pygame.transform.scale_by(outline_title, 1.5)
             screen.blit(scaled_by, (250 + dx, 200 + dy))
             
-        title_text = Font_countdown.render('You Shot Yourself!', True, ("Green"))
+        title_text = MainFont.render('You Shot Yourself!', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(250,200))
         
-        additional_text1 = Font_countdown.render('"Better luck next time"', True, ("Lime"))
+        additional_text1 = MainFont.render('"Better luck next time"', True, ("Lime"))
         screen.blit(additional_text1,(300,350))
     
     def instructions():
-        instruction_text1 = Font_countdown.render('WASD to Move, Right-Click to Shoot', True, ("Lime"))
+        instruction_text1 = MainFont.render('WASD to Move, Right-Click to Shoot', True, ("Lime"))
         screen.blit(instruction_text1,(130,250))
-        instruction_text2 = Font_countdown.render('and R to restart', True, ("Lime"))
+        instruction_text2 = MainFont.render('and R to restart', True, ("Lime"))
         screen.blit(instruction_text2,(370,300))
-        game_text1 = Font_countdown.render('Destroy all objects in the stage', True, ("Lime"))
+        game_text1 = MainFont.render('Destroy all objects in the stage', True, ("Lime"))
         screen.blit(game_text1,(160,375))
-        game_text2 = Font_countdown.render('without running out of time to win!', True, ("Lime"))
+        game_text2 = MainFont.render('without running out of time to win!', True, ("Lime"))
         screen.blit(game_text2,(120,425))
         
     def countdown():
@@ -111,11 +111,11 @@ class Text():
         outline_color = "black"
         # dx and dy are to offset the outline from the text, such as (-2,0) shifts 2 pixels to the left. whilst (-2,-2) handle diagonal
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_text = Font_countdown.render(f'{counter}', True, outline_color)
+            outline_text = MainFont.render(f'{counter}', True, outline_color)
             screen.blit(outline_text, (10 + dx, 0 + dy))
         
         # countdown
-        Countdown_text = Font_countdown.render(f'{counter}', True, ("turquoise"))
+        Countdown_text = MainFont.render(f'{counter}', True, ("turquoise"))
         screen.blit(Countdown_text,(10,0))
         
     def remaining(count):
@@ -123,11 +123,11 @@ class Text():
         outline_color = "black"
         # dx and dy are to offset the outline from the text, such as (-2,0) shifts 2 pixels to the left. whilst (-2,-2) handle diagonal
         for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
-            outline_text = Font_countdown.render(f'Left: {count}', True, outline_color)
+            outline_text = MainFont.render(f'Left: {count}', True, outline_color)
             screen.blit(outline_text, (10 + dx, 650 + dy))
         
         # remaining
-        remaining_text = Font_countdown.render(f'Left: {count}', True, ("turquoise"))
+        remaining_text = MainFont.render(f'Left: {count}', True, ("turquoise"))
         screen.blit(remaining_text,(10,650))
     
 class Tile(pygame.sprite.Sprite):
@@ -147,7 +147,7 @@ class background(pygame.sprite.Sprite):
     def __init__(self, tmx_data):
         super().__init__()
         """Loading Level"""
-        self.tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+        self.tmx_data = load_pygame('data/graphics/Tiled/Gamejam.tmx')
         self.tiles = pygame.sprite.Group()
         self.objects = pygame.sprite.Group()
     
@@ -175,7 +175,7 @@ class background(pygame.sprite.Sprite):
         player = Player()
         player_group = pygame.sprite.GroupSingle(player)
         
-        tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+        tmx_data = load_pygame('data/graphics/Tiled/Gamejam.tmx')
         Background = background(tmx_data)
         Background.loading()
 
@@ -195,7 +195,7 @@ class Bullet(pygame.sprite.Sprite):
                 for obj in collided_obj:
                     if obj.type != "Water":
                      background_obj.remove(obj)
-                     hit_sound = pygame.mixer.Sound("audio/sound_effects/Hit.wav")
+                     hit_sound = pygame.mixer.Sound("data/audio/sound_effects/Hit.wav")
                      hit_sound.set_volume(0.04)
                      hit_sound.play()
                      self.kill()
@@ -212,7 +212,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         # player position
-        self.image = pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha()
+        self.image = pygame.image.load('data/graphics/Tiles/tile_0134-right.png').convert_alpha()
         self.x = 150
         self.y = 400
         self.rect = self.image.get_rect(midbottom = (self.x,self.y))
@@ -233,19 +233,19 @@ class Player(pygame.sprite.Sprite):
         """Movement"""
         if keys[pygame.K_w]:
             self.movement.y = -self.speed
-            self.image = pygame.image.load('graphics/Tiles/tile_0134-up.png').convert_alpha()
+            self.image = pygame.image.load('data/graphics/Tiles/tile_0134-up.png').convert_alpha()
             self.direction = "up"
         elif keys[pygame.K_s]:
             self.movement.y = self.speed
-            self.image = pygame.image.load('graphics/Tiles/tile_0134-down.png').convert_alpha()
+            self.image = pygame.image.load('data/graphics/Tiles/tile_0134-down.png').convert_alpha()
             self.direction = "down"
         elif keys[pygame.K_a]:
             self.movement.x = -self.speed
-            self.image = pygame.image.load('graphics/Tiles/tile_0134-left.png').convert_alpha()
+            self.image = pygame.image.load('data/graphics/Tiles/tile_0134-left.png').convert_alpha()
             self.direction = "left"
         elif keys[pygame.K_d]:
             self.movement.x = self.speed
-            self.image = pygame.image.load('graphics/Tiles/tile_0134-right.png').convert_alpha()
+            self.image = pygame.image.load('data/graphics/Tiles/tile_0134-right.png').convert_alpha()
             self.direction = "right"
         
     def shooting(self):
@@ -270,7 +270,7 @@ class Player(pygame.sprite.Sprite):
                 for obj in collided_obj:
                     if obj.type != "Water":
                      background_obj.remove(obj)
-                     hit_sound = pygame.mixer.Sound("audio/sound_effects/Powerup.wav")
+                     hit_sound = pygame.mixer.Sound("data/audio/sound_effects/Powerup.wav")
                      hit_sound.set_volume(0.025)
                      hit_sound.play()
                      self.speed += 0.02 # increase speed of tank
@@ -281,7 +281,7 @@ class Player(pygame.sprite.Sprite):
         
         hit_by_bullet = pygame.sprite.spritecollide(self, bullet_group, True) # kills player when set to true
         if hit_by_bullet:
-            hit_sound = pygame.mixer.Sound('audio/sound_effects/shotYourself.wav')
+            hit_sound = pygame.mixer.Sound('data/audio/sound_effects/shotYourself.wav')
             hit_sound.set_volume(0.075)
             hit_sound.play()
             global game_active, victory, shot_by
@@ -341,10 +341,10 @@ green_overlay.set_alpha(128)
 green_overlay.fill((0,255,0))
 
 """Fonts"""
-Font_countdown = pygame.font.Font("graphics/Fonts/VCR_OSD_MONO.ttf", 50)
+MainFont = pygame.font.Font("data/graphics/Fonts/VCR_OSD_MONO.ttf", 50)
 
 """Background"""
-tmx_data = load_pygame('graphics/Tiled/Gamejam.tmx')
+tmx_data = load_pygame('data/graphics/Tiled/Gamejam.tmx')
 Background = background(tmx_data)
 Background.loading()
 
@@ -396,25 +396,25 @@ while True:
     if Playing != previously_played:
         if not game_active and Playing == "Menu":
             pygame.mixer_music.stop()
-            pygame.mixer_music.load('audio/music/Menu.wav')
+            pygame.mixer_music.load('data/audio/music/Menu.wav')
             pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "Menu"
         elif game_active and Playing == "Game":
             pygame.mixer_music.stop()
-            pygame.mixer_music.load('audio/music/Game.wav')
+            pygame.mixer_music.load('data/audio/music/Game.wav')
             pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "Game"
         elif not game_active and Playing == "TimeOut":
             pygame.mixer_music.stop()
-            pygame.mixer_music.load('audio/music/TimeOut.wav')
+            pygame.mixer_music.load('data/audio/music/TimeOut.wav')
             pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "TimeOut"
         elif not game_active and Playing == "Victory":
             pygame.mixer_music.stop()
-            pygame.mixer_music.load('audio/music/Victory.wav')
+            pygame.mixer_music.load('data/audio/music/Victory.wav')
             pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "Victory"
