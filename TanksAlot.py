@@ -6,6 +6,7 @@ class StartButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
         super().__init__()
         self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
+        self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
         self.image = self.normal_start # default
         self.rect = self.image.get_rect(topleft=pos)
         self.action = action # Action trigger
@@ -13,11 +14,17 @@ class StartButton(pygame.sprite.Sprite):
     # Add a timer to see the button go up?
     def update(self):    
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
-            self.pressed_start = pygame.image.load('graphics/Buttons/Start/Start4.png').convert_alpha()
             self.image = self.pressed_start
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.normal_start = pygame.image.load('graphics/Buttons/Start/Start1.png').convert_alpha()
-            self.action()
+            self.image = self.normal_start 
+            if self.rect.collidepoint(pygame.mouse.get_pos()):
+              self.action()
+              global shot_by
+              shot_by = None
+    
+    def reset(self):
+        """back to normal state"""
+        self.image = self.normal_start
 
     def draw(self, screen):
         """Draw the button on the screen"""
@@ -27,7 +34,7 @@ class StartButton(pygame.sprite.Sprite):
         global game_active, victory, counter
         game_active = True
         victory = None
-        counter = 90
+        counter = 80
         pygame.time.set_timer(timer,1000)
         background.reset_game()
 
@@ -58,10 +65,8 @@ class Text():
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(160,200))
         
-        additional_text1 = Font_countdown.render('This is my first time', True, ("Lime"))
-        screen.blit(additional_text1,(325,350))
-        additional_text2 = Font_countdown.render('working with TileMapping!', True, ("Lime"))
-        screen.blit(additional_text2,(275,400))
+        additional_text1 = Font_countdown.render('Credits are on the Itch.io page & ReadMe!', True, ("Lime"))
+        screen.blit(additional_text1,(50,350))
         
     def Lose():
         outline_color = "Black"
@@ -159,11 +164,7 @@ class background(pygame.sprite.Sprite):
         for obj in self.tmx_data.objects:
             pos = (obj.x, obj.y) # grabbing the position of the object
             obj_type = obj.name if hasattr(obj,"name") else "Unknown" # if defined assign the object
-            Gameobject(pos=pos, surf=obj.image, groups=self.objects, obj_type = obj_type) # ensure each object has a name
-            
-            """Seperates destructable objects with water"""
-            if obj_type == "Destructable":
-                Gameobject(pos=pos, surf=obj.image, groups=self.objects, obj_type=obj_type)
+            Gameobject(pos=pos, surf=obj.image, groups=self.objects, obj_type=obj_type)
         
     def draw(self, window):
         self.tiles.draw(window)
@@ -206,7 +207,6 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.speed
         self.collision(background_obj, bullet_group)
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -273,7 +273,7 @@ class Player(pygame.sprite.Sprite):
                      hit_sound = pygame.mixer.Sound("audio/sound_effects/Powerup.wav")
                      hit_sound.set_volume(0.025)
                      hit_sound.play()
-                     self.speed += 0.01 # increase speed of tank
+                     self.speed += 0.02 # increase speed of tank
                     elif obj.type == "Water":
                         self.rect.topleft = self.previous_pos
                         self.movement.x = 0
@@ -281,7 +281,7 @@ class Player(pygame.sprite.Sprite):
         
         hit_by_bullet = pygame.sprite.spritecollide(self, bullet_group, True) # kills player when set to true
         if hit_by_bullet:
-            hit_sound = pygame.mixer.Sound("audio/sound_effects/Hit.wav")
+            hit_sound = pygame.mixer.Sound('audio/sound_effects/shotYourself.wav')
             hit_sound.set_volume(0.075)
             hit_sound.play()
             global game_active, victory, shot_by
@@ -311,10 +311,13 @@ class Player(pygame.sprite.Sprite):
 pygame.init()
 screen = pygame.display.set_mode((1280,700))
 clock = pygame.time.Clock()
+clock.tick(60)
 game_active = False
 running = True
 victory = None
 shot_by = None
+previously_played = None
+Playing = "Menu"
 
 """Bullets"""
 bullet_group = pygame.sprite.Group()
@@ -357,7 +360,7 @@ text = font.render(str(counter), True, (0, 128, 0))
 
 timer = pygame.USEREVENT+1
 pygame.time.set_timer(timer, 1000) # in milliseconds
-    
+        
 """Game Loop"""
 while True:
     # For when the person closes the screen
@@ -373,13 +376,15 @@ while True:
         # restart button
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
-                StartButton() " # fix the start button not going back up after restart
                 game_active = False
+                victory = None
+                shot_by = None
+                start_button.reset()
+                bullet_group.empty()
         
         elif event.type == timer:
             if game_active == True:
                 counter -= 1
-                print(counter)
                 if counter == 0:
                     pygame.time.set_timer(timer, 0)
                     victory = False
@@ -387,12 +392,45 @@ while True:
                 if destructable_count == 0:
                     victory = True
                     game_active = False
-                
+    
+    """Music"""
+    if Playing != previously_played:
+        if not game_active and Playing == "Menu":
+            pygame.mixer_music.stop()
+            pygame.mixer_music.load('audio/music/Menu.wav')
+            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.play(loops= -1)
+            Playing = "Menu"
+        elif game_active and Playing == "Game":
+            pygame.mixer_music.stop()
+            pygame.mixer_music.load('audio/music/Game.wav')
+            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.play(loops= -1)
+            Playing = "Game"
+        elif not game_active and Playing == "TimeOut":
+            pygame.mixer_music.stop()
+            pygame.mixer_music.load('audio/music/TimeOut.wav')
+            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.play(loops= -1)
+            Playing = "TimeOut"
+        elif not game_active and Playing == "Victory":
+            pygame.mixer_music.stop()
+            pygame.mixer_music.load('audio/music/Victory.wav')
+            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.play(loops= -1)
+            Playing = "Victory"
+        else:
+            pygame.mixer_music.stop()
+            Playing == "None"
+        
+        previously_played = Playing
+    
     if game_active: 
         Background.draw(screen)
         player_group.draw(screen)
         player_group.update(Background.objects, bullet_group)
         bullet_group.draw(screen)
+        Playing = "Game"
         Text.countdown()
         
         destructable_count = len([obj for obj in Background.objects if obj.type=="Destructable"])
@@ -403,6 +441,7 @@ while True:
         screen.blit(gray_overlay,(0,0))
         button_group.update()
         button_group.draw(screen)
+        Playing = "Menu"
         Text.Background()
         Text.instructions()
         Text.title()
@@ -410,6 +449,7 @@ while True:
         if victory == True:
             screen.blit(green_overlay,(0,0))
             button_group.draw(screen)
+            Playing = "Victory"
             Text.Background()
             Text.Win()
 
@@ -417,13 +457,17 @@ while True:
             if shot_by:
                 screen.blit(red_overlay,(0,0))
                 button_group.draw(screen)
+                Playing = "None"
                 Text.Background()
                 Text.Shotyourself()
             else:
                 screen.blit(red_overlay,(0,0))
                 button_group.draw(screen)
+                Playing = "TimeOut"
                 Text.Background()
                 Text.Lose()
+        
+        bullet_group.empty()
     
     pygame.display.flip()
     clock.tick(60)
