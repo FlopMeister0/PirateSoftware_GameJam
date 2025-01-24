@@ -34,7 +34,7 @@ class StartButton(pygame.sprite.Sprite):
         global game_active, victory, counter
         game_active = True
         victory = None
-        counter = 80
+        counter = 79
         pygame.time.set_timer(timer,1000)
         background.reset_game()
 
@@ -254,13 +254,13 @@ class Player(pygame.sprite.Sprite):
         if current_time - self.last_shot >= self.shooting_cooldown:
             bullet_offset = 20
             if self.direction == "up":
-                bullet = Bullet(self.rect.centerx, self.rect.top - bullet_offset, direction=(0,-1), speed=4, image='graphics/Tiles/tile_0191-up.png')
+                bullet = Bullet(self.rect.centerx, self.rect.top - bullet_offset, direction=(0,-1), speed=4, image='data/graphics/Tiles/tile_0191-up.png')
             elif self.direction == "down":
-                bullet = Bullet(self.rect.centerx, self.rect.bottom + bullet_offset, direction=(0,1), speed=4, image='graphics/Tiles/tile_0191-down.png')
+                bullet = Bullet(self.rect.centerx, self.rect.bottom + bullet_offset, direction=(0,1), speed=4, image='data/graphics/Tiles/tile_0191-down.png')
             elif self.direction == "left":
-                bullet = Bullet(self.rect.left - bullet_offset, self.rect.centery, direction=(-1,0), speed=4, image='graphics/Tiles/tile_0191-left.png')
+                bullet = Bullet(self.rect.left - bullet_offset, self.rect.centery, direction=(-1,0), speed=4, image='data/graphics/Tiles/tile_0191-left.png')
             elif self.direction == "right":
-                bullet = Bullet(self.rect.right + bullet_offset , self.rect.centery, direction=(1,0), speed=4, image='graphics/Tiles/tile_0191-right.png')
+                bullet = Bullet(self.rect.right + bullet_offset , self.rect.centery, direction=(1,0), speed=4, image='data/graphics/Tiles/tile_0191-right.png')
             bullet_group.add(bullet)
             self.last_shot = current_time # update to the current time.
             
