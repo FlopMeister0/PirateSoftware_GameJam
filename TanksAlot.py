@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
+from sys import exit
 
 class StartButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
@@ -11,7 +12,6 @@ class StartButton(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.action = action # Action trigger
     
-    # Add a timer to see the button go up?
     def update(self):    
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
             self.image = self.pressed_start
@@ -196,7 +196,7 @@ class Bullet(pygame.sprite.Sprite):
                     if obj.type != "Water":
                      background_obj.remove(obj)
                      hit_sound = pygame.mixer.Sound("audio/sound_effects/Hit.wav")
-                     hit_sound.set_volume(0.05)
+                     hit_sound.set_volume(0.04)
                      hit_sound.play()
                      self.kill()
                     elif self.rect.x < 0 or self.rect.x > 1280 or self.rect.y < 0 or self.rect.y > 720:
@@ -368,7 +368,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-            
+
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             player.shooting()
         
@@ -397,25 +397,25 @@ while True:
         if not game_active and Playing == "Menu":
             pygame.mixer_music.stop()
             pygame.mixer_music.load('audio/music/Menu.wav')
-            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "Menu"
         elif game_active and Playing == "Game":
             pygame.mixer_music.stop()
             pygame.mixer_music.load('audio/music/Game.wav')
-            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "Game"
         elif not game_active and Playing == "TimeOut":
             pygame.mixer_music.stop()
             pygame.mixer_music.load('audio/music/TimeOut.wav')
-            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "TimeOut"
         elif not game_active and Playing == "Victory":
             pygame.mixer_music.stop()
             pygame.mixer_music.load('audio/music/Victory.wav')
-            pygame.mixer_music.set_volume(0.3)
+            pygame.mixer_music.set_volume(0.25)
             pygame.mixer_music.play(loops= -1)
             Playing = "Victory"
         else:

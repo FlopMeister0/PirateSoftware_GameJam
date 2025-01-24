@@ -3,7 +3,7 @@
  <editorsettings>
   <export target="Gamejam.tmx" format="tmx"/>
  </editorsettings>
- <tileset firstgid="1" source="../../../../Tiled Projects/tilemap_packed.tsx"/>
+ <tileset firstgid="1" source="tilemap_packed.tsx"/>
  <layer id="1" name="Background" width="80" height="44">
   <data encoding="csv">
 3,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
