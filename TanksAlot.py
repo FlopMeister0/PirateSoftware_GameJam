@@ -311,7 +311,6 @@ class Player(pygame.sprite.Sprite):
 pygame.init()
 screen = pygame.display.set_mode((1280,700))
 clock = pygame.time.Clock()
-clock.tick(60)
 game_active = False
 running = True
 victory = None
