@@ -67,7 +67,7 @@ class NormalButton(pygame.sprite.Sprite):
         global game_active, victory, counter
         game_active = True
         victory = None
-        counter = 80
+        counter = 75
         pygame.time.set_timer(timer,1000)
         background.reset_game()
 class HardButton(pygame.sprite.Sprite):
@@ -100,7 +100,7 @@ class HardButton(pygame.sprite.Sprite):
         global game_active, victory, counter
         game_active = True
         victory = None
-        counter = 70
+        counter = 65
         pygame.time.set_timer(timer,1000)
         background.reset_game()
 
@@ -131,8 +131,8 @@ class Text():
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(160,200))
         
-        additional_text1 = MainFont.render("I didn't even check if this was possible...", True, ("Lime"))
-        screen.blit(additional_text1,(30,350))
+        additional_text1 = MainFont.render("You beat my best time! Fair Play...", True, ("Lime"))
+        screen.blit(additional_text1,(150,350))
         
     def Win():
         outline_color = "Black"
@@ -393,7 +393,6 @@ pygame.init()
 screen = pygame.display.set_mode((1280,700))
 clock = pygame.time.Clock()
 game_active = False
-running = True
 victory = None
 shot_by = None
 previously_played = None
@@ -406,7 +405,7 @@ bullet_group = pygame.sprite.Group()
 """Buttons"""
 easy_button = EasyButton(pos=(100,550), action=EasyButton.start_game)
 medium_button = NormalButton(pos=(450,550), action=NormalButton.start_game)
-hard_button = HardButton(pos=(800,550), action=NormalButton.start_game)
+hard_button = HardButton(pos=(800,550), action= HardButton.start_game)
 button_group = pygame.sprite.Group(easy_button, medium_button, hard_button)
 
 """Gray Overlay"""
@@ -437,7 +436,6 @@ player = Player()
 player_group = pygame.sprite.GroupSingle(player)
 
 timer = pygame.USEREVENT+1
-pygame.time.set_timer(timer, 1000) # in milliseconds
         
 """Game Loop"""
 while True:
