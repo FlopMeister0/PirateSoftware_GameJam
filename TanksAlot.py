@@ -3,28 +3,27 @@ import pytmx
 from pytmx.util_pygame import load_pygame
 from sys import exit
 
-class StartButton(pygame.sprite.Sprite):
+class EasyButton(pygame.sprite.Sprite):
     def __init__(self,pos, action):
         super().__init__()
-        self.normal_start = pygame.image.load('data/graphics/Buttons/Start/Start1.png').convert_alpha()
-        self.pressed_start = pygame.image.load('data/graphics/Buttons/Start/Start4.png').convert_alpha()
-        self.image = self.normal_start # default
+        self.normal_easy = pygame.image.load('data/graphics/Buttons/Easy/Easy1.png').convert_alpha()
+        self.pressed_easy = pygame.image.load('data/graphics/Buttons/Easy/Easy4.png').convert_alpha()
+        self.image = self.normal_easy # default
         self.rect = self.image.get_rect(topleft=pos)
         self.action = action # Action trigger
     
-    def update(self):    
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
-            self.image = self.pressed_start
-        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.image = self.normal_start 
-            if self.rect.collidepoint(pygame.mouse.get_pos()):
-              self.action()
-              global shot_by
-              shot_by = None
-    
-    def reset(self):
-        """back to normal state"""
-        self.image = self.normal_start
+    def update(self):   
+        if self.rect.collidepoint(pygame.mouse.get_pos()): 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
+                self.image = self.pressed_easy
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.image = self.normal_easy
+                self.action()
+                global shot_by, difficulty
+                shot_by = None
+                difficulty = "Easy"
+            else:
+                self.image = self.normal_easy
 
     def draw(self, screen):
         """Draw the button on the screen"""
@@ -34,7 +33,74 @@ class StartButton(pygame.sprite.Sprite):
         global game_active, victory, counter
         game_active = True
         victory = None
-        counter = 79
+        counter = 90
+        pygame.time.set_timer(timer,1000)
+        background.reset_game()
+        
+class NormalButton(pygame.sprite.Sprite):
+    def __init__(self,pos, action):
+        super().__init__()
+        self.normal_medium = pygame.image.load('data/graphics/Buttons/Medium/Medium1.png').convert_alpha()
+        self.pressed_medium = pygame.image.load('data/graphics/Buttons/Medium/Medium4.png').convert_alpha()
+        self.image = self.normal_medium # default
+        self.rect = self.image.get_rect(topleft=pos)
+        self.action = action # Action trigger
+    
+    def update(self):    
+        if self.rect.collidepoint(pygame.mouse.get_pos()): 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
+                self.image = self.pressed_medium
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.image = self.normal_medium
+                self.action()
+                global shot_by, difficulty
+                shot_by = None
+                difficulty = "Medium"
+            else:
+                self.image = self.normal_medium
+
+    def draw(self, screen):
+        """Draw the button on the screen"""
+        screen.blit(self.image,self.rect)
+    
+    def start_game():
+        global game_active, victory, counter
+        game_active = True
+        victory = None
+        counter = 80
+        pygame.time.set_timer(timer,1000)
+        background.reset_game()
+class HardButton(pygame.sprite.Sprite):
+    def __init__(self,pos, action):
+        super().__init__()
+        self.normal_hard = pygame.image.load('data/graphics/Buttons/Hard/Hard1.png').convert_alpha()
+        self.pressed_hard = pygame.image.load('data/graphics/Buttons/Hard/Hard4.png').convert_alpha()
+        self.image = self.normal_hard # default
+        self.rect = self.image.get_rect(topleft=pos)
+        self.action = action # Action trigger
+    
+    def update(self):    
+        if self.rect.collidepoint(pygame.mouse.get_pos()): 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: 
+                self.image = self.pressed_hard
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                self.image = self.normal_hard
+                self.action()
+                global shot_by, difficulty
+                shot_by = None
+                difficulty = "Hard"
+            else:
+                self.image = self.normal_hard
+
+    def draw(self, screen):
+        """Draw the button on the screen"""
+        screen.blit(self.image,self.rect)
+    
+    def start_game():
+        global game_active, victory, counter
+        game_active = True
+        victory = None
+        counter = 70
         pygame.time.set_timer(timer,1000)
         background.reset_game()
 
@@ -53,6 +119,20 @@ class Text():
         title_text = MainFont.render('TanksALOT', True, ("Green"))
         scaled_title = pygame.transform.scale_by(title_text, 1.5)
         screen.blit(scaled_title,(430,150))
+
+    def WinHard():
+        outline_color = "Black"
+        for dx,dy in [(-3,0), (3,0), (0,-3), (-3,-3), (3,-3), (-3,3), (3,3)]:
+            outline_title = MainFont.render('TanksALOT for playing!', True, outline_color)
+            scaled_by = pygame.transform.scale_by(outline_title, 1.5)
+            screen.blit(scaled_by, (160 + dx, 200 + dy))
+            
+        title_text = MainFont.render('TanksALOT for playing!', True, ("Green"))
+        scaled_title = pygame.transform.scale_by(title_text, 1.5)
+        screen.blit(scaled_title,(160,200))
+        
+        additional_text1 = MainFont.render("I didn't even check if this was possible...", True, ("Lime"))
+        screen.blit(additional_text1,(30,350))
         
     def Win():
         outline_color = "Black"
@@ -198,6 +278,7 @@ class Bullet(pygame.sprite.Sprite):
                      hit_sound = pygame.mixer.Sound("data/audio/sound_effects/Hit.wav")
                      hit_sound.set_volume(0.04)
                      hit_sound.play()
+                     player.speed += 0.02
                      self.kill()
                     elif self.rect.x < 0 or self.rect.x > 1280 or self.rect.y < 0 or self.rect.y > 720:
                      self.kill() # kills if it leaves the screen
@@ -317,13 +398,16 @@ victory = None
 shot_by = None
 previously_played = None
 Playing = "Menu"
+difficulty = None
 
 """Bullets"""
 bullet_group = pygame.sprite.Group()
 
 """Buttons"""
-start_button = StartButton(pos=(400,550), action=StartButton.start_game)
-button_group = pygame.sprite.Group(start_button)
+easy_button = EasyButton(pos=(100,550), action=EasyButton.start_game)
+medium_button = NormalButton(pos=(450,550), action=NormalButton.start_game)
+hard_button = HardButton(pos=(800,550), action=NormalButton.start_game)
+button_group = pygame.sprite.Group(easy_button, medium_button, hard_button)
 
 """Gray Overlay"""
 gray_overlay = pygame.Surface((1280, 720))
@@ -352,11 +436,6 @@ Background.loading()
 player = Player()
 player_group = pygame.sprite.GroupSingle(player)
 
-"""Countdown"""
-font = pygame.font.SysFont(None, 100)
-counter = 10
-text = font.render(str(counter), True, (0, 128, 0))
-
 timer = pygame.USEREVENT+1
 pygame.time.set_timer(timer, 1000) # in milliseconds
         
@@ -378,7 +457,6 @@ while True:
                 game_active = False
                 victory = None
                 shot_by = None
-                start_button.reset()
                 bullet_group.empty()
         
         elif event.type == timer:
@@ -446,11 +524,18 @@ while True:
         Text.title()
 
         if victory == True:
-            screen.blit(green_overlay,(0,0))
-            button_group.draw(screen)
-            Playing = "Victory"
-            Text.Background()
-            Text.Win()
+            if difficulty == "Hard":
+                screen.blit(green_overlay,(0,0))
+                button_group.draw(screen)
+                Playing = "Victory"
+                Text.Background()
+                Text.WinHard()
+            else:
+                screen.blit(green_overlay,(0,0))
+                button_group.draw(screen)
+                Playing = "Victory"
+                Text.Background()
+                Text.Win()
 
         elif victory == False: 
             if shot_by:
